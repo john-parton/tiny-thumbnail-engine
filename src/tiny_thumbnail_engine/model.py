@@ -179,7 +179,7 @@ class Thumbnail:
 
         return f"{thumbnail_path}?{urlencode(query)}"
 
-    def get_or_generate(self, *, query_params) -> bytes:
+    def get_or_generate(self, *, query_params: dict) -> bytes:
         thumbnail_path = self._get_thumbnail_path()
 
         data = self.app.storage_backend._read_target(thumbnail_path)
@@ -217,7 +217,7 @@ class Thumbnail:
 
         raise ValueError(f"Unknown content_type: {self.format!r}")
 
-    def _generate(self, target_path) -> bytes:
+    def _generate(self, target_path: PurePosixPath) -> bytes:
         if pyvips is None:
             raise ServerMissingDependancyError
 
