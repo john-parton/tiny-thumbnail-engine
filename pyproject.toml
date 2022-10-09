@@ -18,6 +18,10 @@ Changelog = "https://github.com/john-parton/tiny-thumbnail-engine/releases"
 [tool.poetry.dependencies]
 python = "^3.7"
 attrs = "^22.1.0"
+# A list of all of the optional dependencies, some of which are included in the
+# below `extras`. They can be opted into by apps.
+pyvips = { version = "^2.2.1", optional = true }
+boto3 = { version = "^1.24.89", optional = true }
 
 [tool.poetry.dev-dependencies]
 Pygments = ">=2.10.0"
@@ -46,9 +50,8 @@ typeguard = ">=2.13.3"
 xdoctest = {extras = ["colors"], version = ">=0.15.10"}
 myst-parser = {version = ">=0.16.1"}
 
-[tool.poetry.group.server.dependencies]
-pyvips = "^2.2.1"
-boto3 = "^1.24.89"
+[tool.poetry.extras]
+server = ["pyvips", "boto3"]
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
