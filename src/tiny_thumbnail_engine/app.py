@@ -13,6 +13,7 @@ from tiny_thumbnail_engine.environ import ENVIRON_PREFIX
 from tiny_thumbnail_engine.environ import EnvironFactory
 from tiny_thumbnail_engine.model import Thumbnail
 from tiny_thumbnail_engine.model import ThumbnailSpec
+from tiny_thumbnail_engine.storage.protocol import StorageProtocol
 
 
 # Some of these are needed for the client and some for the server
@@ -34,10 +35,11 @@ class App:
         self._unsign = partial(signing.unsign, secret_key=self.secret_key)
 
     @cached_property
-    def storage_backend(self):
+    def storage_backend(self) -> StorageProtocol:
         # Default to the S3 backend
         backend_string: str = os.environ.get(
-            f"{ENVIRON_PREFIX}_STORAGE_BACKEND", "tiny_thumbnail_engine.s3.S3Backend"
+            f"{ENVIRON_PREFIX}_STORAGE_BACKEND",
+            "tiny_thumbnail_engine.storage.s3.S3Backend",
         )
 
         # I think some people prefer a colon for this purpose
