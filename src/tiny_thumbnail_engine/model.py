@@ -109,7 +109,7 @@ class ThumbnailSpec:
 
         return cls(**match.groupdict())
 
-    def to_string(self):
+    def to_string(self) -> str:
         spec = ""
 
         # String concat, string builder might be faster: "".join(parts)
@@ -154,7 +154,7 @@ class Thumbnail:
     app = attr.field(kw_only=True)
 
     @format.validator
-    def check_format(self, attribute, value):
+    def check_format(self, attribute, value: typing.Any) -> None:
         if value not in {".webp", ".jpg"}:
             raise ValueError
 
@@ -201,7 +201,7 @@ class Thumbnail:
         return self._generate(thumbnail_path)
 
     @property
-    def content_type(self):
+    def content_type(self) -> str:
         # Could use dict lookup
         # Could use mimetype standard library
         # TODO improve this when switching to enum
