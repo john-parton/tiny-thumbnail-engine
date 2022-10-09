@@ -67,7 +67,7 @@ class BadSignatureError(Exception):
 
 class SignatureExpiredError(BadSignatureError):
     # If you use an f-string here, flake8 will produce an error
-    """Signature timestamp is older than {} seconds.""".format(MAX_AGE)
+    """Signature timestamp is too old."""
 
 
 def salted_hmac(secret_key: bytes, salt: bytes, value: bytes) -> bytes:

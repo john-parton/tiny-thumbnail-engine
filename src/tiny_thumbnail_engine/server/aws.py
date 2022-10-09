@@ -6,7 +6,7 @@ import secrets
 import typing
 
 from tiny_thumbnail_engine import App
-from tiny_thumbnail_engine.signing import BadSignature
+from tiny_thumbnail_engine.signing import BadSignatureError
 
 
 app = App()
@@ -75,7 +75,7 @@ def lambda_handler(event, context):
         data = thumbnail.get_or_generate(query_params=query_params)
 
     # TODO More helpful error messages
-    except (BadSignature, IndexError, ValueError):
+    except (BadSignatureError, IndexError, ValueError):
         return {
             "statusCode": 403,
             "body": "403 Forbidden",
