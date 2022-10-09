@@ -17,12 +17,12 @@
 # This would probably be OK if the thumbnail sizes were stored in an environmental variable,
 # but we have a CMS in front of this were content authors can specify exact dimensions of thumbnails
 # It can be tricky to anticipate the exact requirements here
-# It is my experience that if a content author cannot generate the correct sized image, they will just 
+# It is my experience that if a content author cannot generate the correct sized image, they will just
 # put the absolute largest image in the template so it "looks right"
 
 ## 2. Other prototypes involving two way authentication or a seperate memcache layer (or redis layer)
 
-# Avoid putting cryptographic signatures in URLs by first consulting some cache table if the thumbnail has 
+# Avoid putting cryptographic signatures in URLs by first consulting some cache table if the thumbnail has
 # been generated yet, and then eliding the crytographic signture if it exists.
 
 # This created a reliance on a separate caching layer and overall increased latency in our app
@@ -60,7 +60,7 @@ class SignatureExpired(BadSignature):
 
 
 def salted_hmac(secret_key: bytes, salt: bytes, value: bytes) -> bytes:
-    
+
     # We want to make sure that the key for HMAC has more than
     # 224 bytes of entropy
     # It's recommended to generate the secrets key using
@@ -70,18 +70,16 @@ def salted_hmac(secret_key: bytes, salt: bytes, value: bytes) -> bytes:
     if len(secret_key) <= 224:
         raise ValueError("secret_key does not have enough entropy")
 
-    return hmac.digest(
-        key=salt + secret_key,
-        msg=value,
-        digest=DIGEST_MOD
-    )
+    return hmac.digest(key=salt + secret_key, msg=value, digest=DIGEST_MOD)
 
 
 def sign(*, secret_key: str, value: str, timestamp: int, salt: str) -> str:
     """Create a base64 encoded cryptographic signature of 'value'"""
     value_with_timestamp = f"{value}:{timestamp}"
-    
-    signature = salted_hmac(secret_key.encode(), salt.encode(), value_with_timestamp.encode())
+
+    signature = salted_hmac(
+        secret_key.encode(), salt.encode(), value_with_timestamp.encode()
+    )
 
     return base64.urlsafe_b64encode(signature).decode().rstrip("=")
 
@@ -91,12 +89,7 @@ def generate(*, secret_key: str, value: str) -> dict:
     timestamp = int(time.time())
     salt = secrets.token_urlsafe()
 
-    signature = sign(
-        secret_key=secret_key, 
-        value=value, 
-        timestamp=timestamp,
-        salt=salt
-    )
+    signature = sign(secret_key=secret_key, value=value, timestamp=timestamp, salt=salt)
 
     return {
         "salt": salt,
@@ -105,19 +98,21 @@ def generate(*, secret_key: str, value: str) -> dict:
     }
 
 
-def unsign(*, secret_key: str, value: str, salt: str, signature: str, timestamp: typing.Union[str, int]) -> None:
+def unsign(
+    *,
+    secret_key: str,
+    value: str,
+    salt: str,
+    signature: str,
+    timestamp: typing.Union[str, int],
+) -> None:
     if isinstance(timestamp, str):
         timestamp = int(timestamp)
 
     if (time.time() - timestamp) > MAX_AGE:
         raise SignatureExpired
 
-    compare = sign(
-        secret_key=secret_key, 
-        value=value, 
-        timestamp=timestamp, 
-        salt=salt
-    )
+    compare = sign(secret_key=secret_key, value=value, timestamp=timestamp, salt=salt)
 
     if not secrets.compare_digest(signature, compare):
         raise BadSignature

@@ -39,13 +39,13 @@ def _clamped_int(value: int) -> int:
 @attr.s
 class ThumbnailSpec:
     """A string representation of the desired thumbnail operations including
-    
+
     desired width
     desired height
     whether or not to pad the final image
     whether or not to upscale
     whether or not to crop the final image
-    
+
     Examples
 
     200x300 - Resize image so that it is contained within a 200 by 300 pixel rectangle. If the image
@@ -69,7 +69,8 @@ class ThumbnailSpec:
 
     # I'm not sure if some combinations of padding/upscale/crop are nonsense?
     # Probably some duplication in here
-    SPEC_PATTERN = re.compile(r"""
+    SPEC_PATTERN = re.compile(
+        r"""
         ^
             (?P<width>\d*)
             (?:x(?P<height>\d+))?
@@ -77,8 +78,9 @@ class ThumbnailSpec:
             (?P<upscale>u?)
             (?P<crop>c?)
         $
-    """, flags=re.VERBOSE)
-
+    """,
+        flags=re.VERBOSE,
+    )
 
     # Despite these attributes being called "width" and "height", they are more
     # accurately referred to as "desired width" and "desired height"
@@ -92,9 +94,7 @@ class ThumbnailSpec:
 
     @classmethod
     def from_string(cls, spec: str) -> "ThumbnailSpec":
-        return cls(
-            **cls.SPEC_PATTERN.search(spec).groupdict()
-        )
+        return cls(**cls.SPEC_PATTERN.search(spec).groupdict())
 
     def to_string(self):
         spec = ""
@@ -135,7 +135,7 @@ class Thumbnail:
     spec: ThumbnailSpec = attr.field()
     format: str = attr.field(kw_only=True)  # TODO make this an enum
 
-    # Reference to the app so that we can 
+    # Reference to the app so that we can
     # retrieve fiels and persist the final image
     # Missing type annotation
     app = attr.field(kw_only=True)
@@ -146,11 +146,10 @@ class Thumbnail:
             raise ValueError
 
     def _get_thumbnail_path(self) -> PurePosixPath:
-        """Relative path to the final thumbnail
-        """
+        """Relative path to the final thumbnail"""
 
         path = PurePosixPath(self.path)
-        
+
         return path / self.spec.to_string() / path.with_suffix(self.format).name
 
     # Should this just be __str__ ?
@@ -159,22 +158,19 @@ class Thumbnail:
 
         thumbnail_path = self._get_thumbnail_path()
 
-
-        query = self.app._generate_signature(
-            value=str(thumbnail_path)
-        )
+        query = self.app._generate_signature(value=str(thumbnail_path))
 
         return f"{thumbnail_path}?{urlencode(query)}"
 
     def get_or_generate(self, *, query_params) -> bytes:
         thumbnail_path = self._get_thumbnail_path()
-        
+
         data = self.app.storage_backend._read_target(thumbnail_path)
 
         if data is not None:
             return data
 
-        # TODO Wrap IndexError and raise a better one 
+        # TODO Wrap IndexError and raise a better one
         signature = query_params.get("signature", [])[0]
         salt = query_params.get("salt", [])[0]
         timestamp = query_params.get("timestamp", [])[0]
@@ -186,7 +182,7 @@ class Thumbnail:
             value=str(thumbnail_path),
             signature=signature,
             salt=salt,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         return self._generate(thumbnail_path)
@@ -212,11 +208,7 @@ class Thumbnail:
 
         # Can create an error
         # Read data using storage backend
-        buffer: bytes = self.app.storage_backend._read_source(
-            PurePosixPath(self.path)
-        )
-
-
+        buffer: bytes = self.app.storage_backend._read_source(PurePosixPath(self.path))
 
         # "" means no options
         # Not sure what options are available
@@ -227,9 +219,7 @@ class Thumbnail:
         image = image.autorot()
 
         if spec.width is None:
-            width = _clamped_int(
-                spec.height * (image.width / image.height)
-            )
+            width = _clamped_int(spec.height * (image.width / image.height))
         else:
             width = spec.width
 
@@ -238,49 +228,59 @@ class Thumbnail:
             # There are ENTROPY and ATTENTION
             # options which are probably useful here
             # I tested ENTROPY and it actually worked pretty well as a sane default
-            "crop": pyvips.enums.Interesting.ENTROPY if spec.crop else pyvips.enums.Interesting.NONE
+            "crop": pyvips.enums.Interesting.ENTROPY
+            if spec.crop
+            else pyvips.enums.Interesting.NONE,
         }
 
         if spec.height is not None:
             thumbnail_kwargs["height"] = spec.height
 
-        image = image.thumbnail_image(
-            width, **thumbnail_kwargs
-        )
-        
+        image = image.thumbnail_image(width, **thumbnail_kwargs)
+
         # TODO Check if alpha channel and handle correctly
 
         if spec.padding:
-            image = image.gravity(pyvips.enums.CompassDirection.CENTRE, max(width, image.width), max(spec.height or image.height, image.height), background=[255, 255, 255])
+            image = image.gravity(
+                pyvips.enums.CompassDirection.CENTRE,
+                max(width, image.width),
+                max(spec.height or image.height, image.height),
+                background=[255, 255, 255],
+            )
 
         write_kwargs = {
             "Q": 80,
             "strip": True,
         }
 
-
         # TODO Use enum
         if self.format == ".jpg":
-            write_kwargs.update({
-                "trellis_quant": True,
-                "overshoot_deringing": True,
-                "optimize_scans": True,
-                "quant_table": 3,
-                "optimize_coding": True,
-                "interlace": True,  # is this correct?
-                # "chroma_subscampling": "4:2:0"
-            })
+            write_kwargs.update(
+                {
+                    "trellis_quant": True,
+                    "overshoot_deringing": True,
+                    "optimize_scans": True,
+                    "quant_table": 3,
+                    "optimize_coding": True,
+                    "interlace": True,  # is this correct?
+                    # "chroma_subscampling": "4:2:0"
+                }
+            )
         elif self.format == ".webp":
-            write_kwargs.update({
-                "min_size": True,
-                "effort": 6,                
-            })
+            write_kwargs.update(
+                {
+                    "min_size": True,
+                    "effort": 6,
+                }
+            )
         else:
             raise ValueError(f"Unhandled format format: {self.format!r}")
 
         finished_image: bytes = image.write_to_buffer(self.format, **write_kwargs)
 
         # Persist to bucket
-        self.app.storage_backend._write_target(target_path, finished_image, content_type=self.content_type)
+        self.app.storage_backend._write_target(
+            target_path, finished_image, content_type=self.content_type
+        )
 
         return finished_image
