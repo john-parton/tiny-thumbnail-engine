@@ -21,6 +21,10 @@ try:
 except ImportError:
     pyvips = None
 
+# Avoid circular dependency unless type checkgin
+if typing.TYPE_CHECKING:
+    from .app import App
+
 
 # TODO Move to exceptions
 class ServerMissingDependancyError(RuntimeError):
@@ -151,7 +155,7 @@ class Thumbnail:
     # Reference to the app so that we can
     # retrieve fiels and persist the final image
     # Missing type annotation
-    app = attr.field(kw_only=True)
+    app: App = attr.field(kw_only=True)
 
     @format.validator
     def check_format(self, attribute, value: typing.Any) -> None:
