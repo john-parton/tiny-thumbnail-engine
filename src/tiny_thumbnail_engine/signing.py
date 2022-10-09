@@ -58,7 +58,7 @@ DIGEST_MOD: typing.Final[str] = "sha224"
 # It's not critical that this be any particular variable,
 # we could probably have even implemented this entire system
 # without a max age feature at all
-MAX_AGE: typing.Final[str] = 30 * 24 * 60 * 60
+MAX_AGE: typing.Final[int] = 30 * 24 * 60 * 60
 
 
 class SignatureDict(typing.TypedDict):

@@ -27,7 +27,9 @@ except KeyError as e:
 
 
 # TODO Consider a class-based approach
-def lambda_handler(event, context):
+def lambda_handler(
+    event: typing.Dict[typing.Any, typing.Any], context
+) -> typing.Dict[typing.Any, typing.Any]:
     """Called by lambda to run application."""
     # TODO Consider factoring out into its own method
     if CLOUDFRONT_VERIFY:
