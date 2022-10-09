@@ -5,7 +5,7 @@
 
 import os
 
-from tiny_thumbnail_engine.exceptions import ImproperlyConfigured
+from tiny_thumbnail_engine.exceptions import ImproperlyConfiguredError
 
 
 ENVIRON_PREFIX = "TINY_THUMBNAIL_ENGINE"
@@ -18,13 +18,15 @@ def EnvironFactory(key, class_name):
         try:
             value = os.environ[f"{ENVIRON_PREFIX}_{key}"]
         except KeyError as e:
-            raise ImproperlyConfigured(
-                f"{class_name} requires the environmental variable {ENVIRON_PREFIX}_{key} to function."
+            raise ImproperlyConfiguredError(
+                f"{class_name} requires the environmental variable "
+                f"{ENVIRON_PREFIX}_{key} to function."
             ) from e
 
         if not value:
-            raise ImproperlyConfigured(
-                f"{class_name} requires the environmental variable {ENVIRON_PREFIX}_{key} to function."
+            raise ImproperlyConfiguredError(
+                f"{class_name} requires the environmental variable "
+                f"{ENVIRON_PREFIX}_{key} to function."
             )
 
         return value

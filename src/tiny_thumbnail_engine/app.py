@@ -24,7 +24,6 @@ class App:
     class UrlError(ValueError):
         pass
 
-    # url: str = attr.field(factory=EnvironFactory("URL"))  # example: thumbnail.mydomain.com
     secret_key: str = attr.field(
         factory=EnvironFactory("SECRET_KEY", "tiny_thumbnail_engine.App")
     )

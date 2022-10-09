@@ -1,3 +1,5 @@
+"""Default handler to deploy tiny-thumbnail-engine on AWS Lambda."""
+
 import base64
 import os
 import secrets
@@ -17,14 +19,16 @@ DEFAULT_TIME_TO_LIVE: typing.Final[int] = (
 # This is to make sure access it only through our cloudfront cdn
 try:
     CLOUDFRONT_VERIFY: typing.Final[str] = os.environ["CLOUDFRONT_VERIFY"]
-except KeyError:
+except KeyError as e:
     raise ValueError(
-        "Set CLOUDFRONT_VERIFY in environment. Set to blank to disable verification check."
-    )
+        "Set CLOUDFRONT_VERIFY in environment. "
+        "Set to blank to disable verification check."
+    ) from e
 
 
 # TODO Consider a class-based approach
 def lambda_handler(event, context):
+    """Called by lambda to run application."""
     # TODO Consider factoring out into its own method
     if CLOUDFRONT_VERIFY:
         try:
@@ -37,7 +41,10 @@ def lambda_handler(event, context):
         if not secrets.compare_digest(CLOUDFRONT_VERIFY, verification_header):
             return {
                 "statusCode": 403,
-                "body": "403 Forbidden: Only access this service using the canonical domain names.",
+                "body": (
+                    "403 Forbidden: "
+                    "Only access this service using the canonical domain names."
+                ),
                 "isBase64Encoded": False,
                 "headers": {
                     "Content-Type": "text/plain",

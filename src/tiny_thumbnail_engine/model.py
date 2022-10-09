@@ -23,8 +23,8 @@ except ImportError:
 
 
 # TODO Move to exceptions
-class ServerMissingDependancy(RuntimeError):
-    "Missing dependancy for server-side functionality. Did you install tiny-thumbnail-engine[server]"
+class ServerMissingDependancyError(RuntimeError):
+    """Missing dependancy for server-side functionality. Did you install tiny-thumbnail-engine[server]"""
 
 
 def _convert_int(value: typing.Any) -> typing.Optional[int]:
@@ -49,19 +49,25 @@ class ThumbnailSpec:
 
     Examples
 
-    200x300 - Resize image so that it is contained within a 200 by 300 pixel rectangle. If the image
+    200x300 - Resize image so that it is contained within a 200 by 300 pixel rectangle.
+      If the image
       already fits within that box, no scaling is performed
 
-    200x300c - Scale image down such that it covers a 200 by 300 pixel rectangle. If the image
+    200x300c - Scale image down such that it covers a 200 by 300 pixel rectangle.
+      If the image
       already fits within that box, no scaling is performed
 
-    200x300u - Resize image so that it is contained within a 200 by 300 pixel rectangle. If the image
+    200x300u - Resize image so that it is contained within a 200 by 300 pixel rectangle.
+      If the image
       is smaller than that box, upscale the image (creating a blurry image)
-      It's generally preferred that you should save this image using CSS or HTML, but we have some
+      It's generally preferred that you should save this image using CSS or HTML, but
+      we have some
       legacy code that still expects this function
 
-    200x300p - Scale image so that it is contained within a 200 by 300 pixel rectangle. Fill the rest
-      of the rectangle with white. (TODO this should probably be alpha for transparent images)
+    200x300p - Scale image so that it is contained within a 200 by 300 pixel rectangle.
+      Fill the rest
+      of the rectangle with white.
+      (TODO this should probably be alpha for transparent images)
 
     200 - Scale image so that the width is at most 200 pixels. Height is unconstrained
 
@@ -85,7 +91,8 @@ class ThumbnailSpec:
 
     # Despite these attributes being called "width" and "height", they are more
     # accurately referred to as "desired width" and "desired height"
-    # The final width and height of the image will likely not be the same due to padding, upscale, crop, etc.
+    # The final width and height of the image will likely not be the same due to
+    # padding, upscale, crop, etc.
     width: typing.Optional[int] = attr.field(converter=_convert_int)
     height: typing.Optional[int] = attr.field(converter=_convert_int)
 
@@ -208,7 +215,7 @@ class Thumbnail:
 
     def _generate(self, target_path) -> bytes:
         if pyvips is None:
-            raise ServerMissingDependancy
+            raise ServerMissingDependancyError
 
         spec = self.spec
 
