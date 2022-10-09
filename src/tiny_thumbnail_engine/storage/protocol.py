@@ -1,8 +1,8 @@
 import typing
 from pathlib import Path
 
-class StorageProtocol(typing.Protocol):
 
+class StorageProtocol(typing.Protocol):
     def _read_source(self, path: Path) -> bytes:
         ...
 

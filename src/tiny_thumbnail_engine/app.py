@@ -1,6 +1,7 @@
 """Main module."""
 
 import os
+import typing
 from functools import cached_property
 from functools import partial
 from importlib import import_module
@@ -47,7 +48,12 @@ class App:
         module, __, class_name = backend_string.rpartition(".")
 
         # TODO wrap these errors
-        cls = getattr(import_module(module), class_name)
+        cls: typing.Callable[[], StorageProtocol] = getattr(
+            import_module(module), class_name
+        )
+
+        # TODO Consider a run-time check that this class actually
+        # implements the storage protocol
 
         return cls()
 
