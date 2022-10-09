@@ -95,7 +95,12 @@ class ThumbnailSpec:
 
     @classmethod
     def from_string(cls, spec: str) -> "ThumbnailSpec":
-        return cls(**cls.SPEC_PATTERN.search(spec).groupdict())
+        match = cls.SPEC_PATTERN.search(spec)
+
+        if match is None:
+            raise ValueError(f"Invalid spec: {spec!r}")
+
+        return cls(**match.groupdict())
 
     def to_string(self):
         spec = ""

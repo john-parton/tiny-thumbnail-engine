@@ -18,6 +18,7 @@ from tiny_thumbnail_engine.model import Thumbnail, ThumbnailSpec
 class App:
 
     # Wrap "not enough values to unpack"
+    # TODO Move to exceptions ?
     class UrlError(ValueError):
         pass
 
@@ -64,6 +65,11 @@ class App:
         except ValueError as e:
             raise self.UrlError from e
 
+        try:
+            spec = ThumbnailSpec.from_string(spec)
+        except ValueError as e:
+            raise self.UrlError from e
+
         # Could use splitext here
         # I do like pathlib, but it's kind of hard to read
         file_system_path = PosixPath(*path_parts)
@@ -74,5 +80,5 @@ class App:
             str(file_system_path),
             app=self,
             format=output_name.suffix,
-            spec=ThumbnailSpec.from_string(spec),
+            spec=spec,
         )

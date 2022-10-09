@@ -2,6 +2,7 @@
 # This module should be lazily imported to avoid import errors
 # when using only the client-side functionality
 
+import io
 import typing
 from pathlib import Path
 
@@ -15,7 +16,6 @@ ENVIRON_PREFIX = "TINY_THUMBNAIL_ENGINE"
 
 
 
-
 @attr.s
 class S3Backend:
     source_bucket: str = attr.field(factory=EnvironFactory("SOURCE_BUCKET", "tiny_thumbnail_engine.s3.S3Backend"))
@@ -24,7 +24,7 @@ class S3Backend:
     # boto3 s3 client
     client = attr.field(init=False)
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         self.client = boto3.client("s3")
 
     def _read_source(self, path: Path) -> bytes:
@@ -46,7 +46,7 @@ class S3Backend:
 
         return data["Body"].read()
 
-    def _write_target(self, path: Path, contents: bytes, content_type: str):
+    def _write_target(self, path: Path, contents: bytes, content_type: str) -> None:
         key = path.as_posix()
         f = io.BytesIO(contents)
         self.client.upload_fileobj(f, self.target_bucket, key, ExtraArgs={'ContentType': content_type})
