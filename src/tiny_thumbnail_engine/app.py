@@ -12,7 +12,6 @@ from tiny_thumbnail_engine.environ import EnvironFactory, ENVIRON_PREFIX
 from tiny_thumbnail_engine.model import Thumbnail, ThumbnailSpec
 
 
-
 # Some of these are needed for the client and some for the server
 @attr.s
 class App:
@@ -23,7 +22,9 @@ class App:
         pass
 
     # url: str = attr.field(factory=EnvironFactory("URL"))  # example: thumbnail.mydomain.com
-    secret_key: str = attr.field(factory=EnvironFactory("SECRET_KEY", "tiny_thumbnail_engine.App"))
+    secret_key: str = attr.field(
+        factory=EnvironFactory("SECRET_KEY", "tiny_thumbnail_engine.App")
+    )
 
     def __attrs_post_init__(self):
         self._sign = partial(signing.sign, secret_key=self.secret_key)
@@ -33,7 +34,9 @@ class App:
     @cached_property
     def storage_backend(self):
         # Default to the S3 backend
-        backend_string: str = os.environ.get(f"{ENVIRON_PREFIX}_STORAGE_BACKEND", "tiny_thumbnail_engine.s3.S3Backend")
+        backend_string: str = os.environ.get(
+            f"{ENVIRON_PREFIX}_STORAGE_BACKEND", "tiny_thumbnail_engine.s3.S3Backend"
+        )
 
         # I think some people prefer a colon for this purpose
         # I've seen it in lambda documentation
@@ -42,14 +45,11 @@ class App:
         # TODO wrap these errors
         cls = getattr(import_module(module), class_name)
 
-        return cls()        
+        return cls()
 
-    def get_instance(self, path, *args, format='jpg', **kwargs):
+    def get_instance(self, path, *args, format="jpg", **kwargs):
         return Thumbnail(
-            app=self,
-            path=path,
-            format=format,
-            spec=ThumbnailSpec(*args, **kwargs)
+            app=self, path=path, format=format, spec=ThumbnailSpec(*args, **kwargs)
         )
 
     def from_path(self, path):

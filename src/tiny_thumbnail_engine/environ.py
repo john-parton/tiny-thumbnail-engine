@@ -16,12 +16,15 @@ def EnvironFactory(key, class_name):
         try:
             value = os.environ[f"{ENVIRON_PREFIX}_{key}"]
         except KeyError as e:
-            raise ImproperlyConfigured(f"{class_name} requires the environmental variable {ENVIRON_PREFIX}_{key} to function.") from e
-        
+            raise ImproperlyConfigured(
+                f"{class_name} requires the environmental variable {ENVIRON_PREFIX}_{key} to function."
+            ) from e
+
         if not value:
-            raise ImproperlyConfigured(f"{class_name} requires the environmental variable {ENVIRON_PREFIX}_{key} to function.")
-        
+            raise ImproperlyConfigured(
+                f"{class_name} requires the environmental variable {ENVIRON_PREFIX}_{key} to function."
+            )
+
         return value
 
     return inner
-

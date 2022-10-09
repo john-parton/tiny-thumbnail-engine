@@ -5,18 +5,22 @@ import typing
 
 
 from tiny_thumbnail_engine import App
-from tiny_thumbnail_engine.signing import BadSignature 
+from tiny_thumbnail_engine.signing import BadSignature
 
 app = App()
 
-DEFAULT_TIME_TO_LIVE: typing.Final[int] = 60 * 60 * 24 * 180  # 180 days, kind of bonkers. That's what Google says
+DEFAULT_TIME_TO_LIVE: typing.Final[int] = (
+    60 * 60 * 24 * 180
+)  # 180 days, kind of bonkers. That's what Google says
 
 
 # This is to make sure access it only through our cloudfront cdn
 try:
     CLOUDFRONT_VERIFY: typing.Final[str] = os.environ["CLOUDFRONT_VERIFY"]
 except KeyError:
-    raise ValueError("Set CLOUDFRONT_VERIFY in environment. Set to blank to disable verification check.")
+    raise ValueError(
+        "Set CLOUDFRONT_VERIFY in environment. Set to blank to disable verification check."
+    )
 
 
 # TODO Consider a class-based approach
@@ -24,10 +28,12 @@ def lambda_handler(event, context):
     # TODO Consider factoring out into its own method
     if CLOUDFRONT_VERIFY:
         try:
-            verification_header = event.get("multiValueHeaders", {}).get("x-cloudfront-verify", [])[0]
+            verification_header = event.get("multiValueHeaders", {}).get(
+                "x-cloudfront-verify", []
+            )[0]
         except IndexError:
             verification_header = ""
-        
+
         if not secrets.compare_digest(CLOUDFRONT_VERIFY, verification_header):
             return {
                 "statusCode": 403,
@@ -35,7 +41,7 @@ def lambda_handler(event, context):
                 "isBase64Encoded": False,
                 "headers": {
                     "Content-Type": "text/plain",
-                }
+                },
             }
 
     # Must slice leading /
@@ -43,9 +49,7 @@ def lambda_handler(event, context):
 
     # Verify that it's not a malformed request
     try:
-        thumbnail = app.from_path(
-            path
-        )
+        thumbnail = app.from_path(path)
     # A garbage URL was passed
     except app.UrlError:
         return {
@@ -54,7 +58,7 @@ def lambda_handler(event, context):
             "isBase64Encoded": False,
             "headers": {
                 "Content-Type": "text/plain",
-            }
+            },
         }
 
     query_params = event.get("multiValueQueryStringParameters", {})
@@ -71,7 +75,7 @@ def lambda_handler(event, context):
             "isBase64Encoded": False,
             "headers": {
                 "Content-Type": "text/plain",
-            }
+            },
         }
 
     return {
@@ -80,6 +84,6 @@ def lambda_handler(event, context):
         "isBase64Encoded": True,
         "headers": {
             "Cache-Control": f"public, max-age={DEFAULT_TIME_TO_LIVE}",
-            "Content-Type": thumbnail.content_type
-        }
+            "Content-Type": thumbnail.content_type,
+        },
     }
