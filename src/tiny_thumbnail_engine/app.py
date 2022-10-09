@@ -1,15 +1,18 @@
 """Main module."""
 
 import os
-from functools import cached_property, partial
-from pathlib import PosixPath
+from functools import cached_property
+from functools import partial
 from importlib import import_module
+from pathlib import PosixPath
 
 import attr
 
 from tiny_thumbnail_engine import signing
-from tiny_thumbnail_engine.environ import EnvironFactory, ENVIRON_PREFIX
-from tiny_thumbnail_engine.model import Thumbnail, ThumbnailSpec
+from tiny_thumbnail_engine.environ import ENVIRON_PREFIX
+from tiny_thumbnail_engine.environ import EnvironFactory
+from tiny_thumbnail_engine.model import Thumbnail
+from tiny_thumbnail_engine.model import ThumbnailSpec
 
 
 # Some of these are needed for the client and some for the server

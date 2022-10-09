@@ -12,6 +12,7 @@ from botocore.exceptions import ClientError
 
 from tiny_thumbnail_engine.environ import EnvironFactory
 
+
 ENVIRON_PREFIX = "TINY_THUMBNAIL_ENGINE"
 
 

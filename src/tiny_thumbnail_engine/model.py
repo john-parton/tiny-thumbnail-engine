@@ -13,8 +13,8 @@ from functools import cached_property
 from pathlib import PurePosixPath
 from urllib.parse import urlencode
 
-
 import attr
+
 
 try:
     import pyvips

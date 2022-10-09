@@ -4,7 +4,9 @@
 # There's probably some dedicated python package just for doing this
 
 import os
+
 from tiny_thumbnail_engine.exceptions import ImproperlyConfigured
+
 
 ENVIRON_PREFIX = "TINY_THUMBNAIL_ENGINE"
 

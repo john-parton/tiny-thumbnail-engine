@@ -3,9 +3,9 @@ import os
 import secrets
 import typing
 
-
 from tiny_thumbnail_engine import App
 from tiny_thumbnail_engine.signing import BadSignature
+
 
 app = App()
 
