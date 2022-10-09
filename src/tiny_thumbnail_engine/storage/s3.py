@@ -12,6 +12,7 @@ from botocore.exceptions import ClientError
 
 from tiny_thumbnail_engine.environ import EnvironFactory
 
+
 ENVIRON_PREFIX = "TINY_THUMBNAIL_ENGINE"
 
 
@@ -33,7 +34,11 @@ class S3Backend:
     def _read_source(self, path: Path) -> bytes:
         key = path.as_posix()
         data = self.client.get_object(Bucket=self.source_bucket, Key=key)
-        return data["Body"].read()
+
+        # Not sure why boto3-stubs is suggesting this is typing.Any
+        body: bytes = data["Body"].read()
+
+        return body
 
     # Function can fail
     # Probably should raise a wrapped file not found exceptions instead
@@ -47,7 +52,10 @@ class S3Backend:
         except ClientError:
             return None
 
-        return data["Body"].read()
+        # Not sure why boto3-stubs is suggesting this is typing.Any
+        body: bytes = data["Body"].read()
+
+        return body
 
     def _write_target(self, path: Path, contents: bytes, content_type: str) -> None:
         key = path.as_posix()

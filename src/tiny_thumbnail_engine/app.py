@@ -1,15 +1,20 @@
 """Main module."""
 
 import os
-from functools import cached_property, partial
-from pathlib import PosixPath
+import typing
+from functools import cached_property
+from functools import partial
 from importlib import import_module
+from pathlib import PosixPath
 
 import attr
 
 from tiny_thumbnail_engine import signing
-from tiny_thumbnail_engine.environ import EnvironFactory, ENVIRON_PREFIX
-from tiny_thumbnail_engine.model import Thumbnail, ThumbnailSpec
+from tiny_thumbnail_engine.environ import ENVIRON_PREFIX
+from tiny_thumbnail_engine.environ import EnvironFactory
+from tiny_thumbnail_engine.model import Thumbnail
+from tiny_thumbnail_engine.model import ThumbnailSpec
+from tiny_thumbnail_engine.storage.protocol import StorageProtocol
 
 
 # Some of these are needed for the client and some for the server
@@ -21,7 +26,6 @@ class App:
     class UrlError(ValueError):
         pass
 
-    # url: str = attr.field(factory=EnvironFactory("URL"))  # example: thumbnail.mydomain.com
     secret_key: str = attr.field(
         factory=EnvironFactory("SECRET_KEY", "tiny_thumbnail_engine.App")
     )
@@ -32,10 +36,11 @@ class App:
         self._unsign = partial(signing.unsign, secret_key=self.secret_key)
 
     @cached_property
-    def storage_backend(self):
+    def storage_backend(self) -> StorageProtocol:
         # Default to the S3 backend
         backend_string: str = os.environ.get(
-            f"{ENVIRON_PREFIX}_STORAGE_BACKEND", "tiny_thumbnail_engine.s3.S3Backend"
+            f"{ENVIRON_PREFIX}_STORAGE_BACKEND",
+            "tiny_thumbnail_engine.storage.s3.S3Backend",
         )
 
         # I think some people prefer a colon for this purpose
@@ -43,7 +48,12 @@ class App:
         module, __, class_name = backend_string.rpartition(".")
 
         # TODO wrap these errors
-        cls = getattr(import_module(module), class_name)
+        cls: typing.Callable[[], StorageProtocol] = getattr(
+            import_module(module), class_name
+        )
+
+        # TODO Consider a run-time check that this class actually
+        # implements the storage protocol
 
         return cls()
 
