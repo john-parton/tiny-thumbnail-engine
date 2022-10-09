@@ -61,6 +61,12 @@ DIGEST_MOD: typing.Final[str] = "sha224"
 MAX_AGE: typing.Final[str] = 30 * 24 * 60 * 60
 
 
+class SignatureDict(typing.TypedDict):
+    salt: str
+    signature: str
+    timestamp: int
+
+
 class BadSignatureError(Exception):
     """Signature does not match."""
 
@@ -95,7 +101,7 @@ def sign(*, secret_key: str, value: str, timestamp: int, salt: str) -> str:
     return base64.urlsafe_b64encode(signature).decode().rstrip("=")
 
 
-def generate(*, secret_key: str, value: str) -> dict:
+def generate(*, secret_key: str, value: str) -> SignatureDict:
     """Shortcut utility to create a signature with sign. Uses current time as timestamp and randomly generates a salt."""
     timestamp = int(time.time())
     salt = secrets.token_urlsafe()
