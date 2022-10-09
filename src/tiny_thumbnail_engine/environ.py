@@ -4,15 +4,16 @@
 # There's probably some dedicated python package just for doing this
 
 import os
+import typing
 
 from tiny_thumbnail_engine.exceptions import ImproperlyConfiguredError
 
 
-ENVIRON_PREFIX = "TINY_THUMBNAIL_ENGINE"
+ENVIRON_PREFIX: typing.Final[str] = "TINY_THUMBNAIL_ENGINE"
 
 
-def EnvironFactory(key, class_name):
-    def inner():
+def EnvironFactory(key: str, class_name: str) -> typing.Callable[[], str]:
+    def inner() -> str:
         # Should wrap key error and re-raise with more helpful message
         # Some keys are required on the server and some are required on the client
         try:
