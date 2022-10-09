@@ -22,6 +22,7 @@ except ImportError:
     pyvips = None
 
 
+# TODO Move to exceptions
 class ServerMissingDependancy(RuntimeError):
     "Missing dependancy for server-side functionality. Did you install tiny-thumbnail-engine[server]"
 
