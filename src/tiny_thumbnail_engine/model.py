@@ -155,7 +155,7 @@ class Thumbnail:
     # Reference to the app so that we can
     # retrieve fiels and persist the final image
     # Missing type annotation
-    app: App = attr.field(kw_only=True)
+    app: "App" = attr.field(kw_only=True)
 
     @format.validator
     def check_format(self, attribute, value: typing.Any) -> None:
