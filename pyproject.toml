@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tiny-thumbnail-engine"
-version = "0.1.3"
+version = "0.1.4"
 description = "Tiny Thumbnail Engine"
 authors = ["John Parton <john.parton.iv@gmail.com>"]
 license = "MIT"
