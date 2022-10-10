@@ -256,8 +256,6 @@ class Thumbnail:
         image = image.thumbnail_image(width, **thumbnail_kwargs)
 
         # TODO Add more explict handling for RGBA
-        if self.format == ".jpg":
-            image = image.flatten(background=[255, 255, 255])
 
         if spec.padding:
             image = image.gravity(
@@ -282,7 +280,8 @@ class Thumbnail:
                     "quant_table": 3,
                     "optimize_coding": True,
                     "interlace": True,  # is this correct?
-                    # "chroma_subscampling": "4:2:0"
+                    # "chroma_subscampling": "4:2:0",
+                    "background": [255, 255, 255],
                 }
             )
         elif self.format == ".webp":
