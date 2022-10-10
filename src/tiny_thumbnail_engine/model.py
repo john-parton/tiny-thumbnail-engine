@@ -257,7 +257,7 @@ class Thumbnail:
 
         # TODO Add more explict handling for RGBA
         if self.format == ".jpg":
-            image = image.flatten([255, 255, 255], max_alpha=0.0)
+            image = image.flatten([255, 255, 255])
 
         if spec.padding:
             image = image.gravity(
