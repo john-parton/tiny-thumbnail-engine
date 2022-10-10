@@ -255,7 +255,9 @@ class Thumbnail:
 
         image = image.thumbnail_image(width, **thumbnail_kwargs)
 
-        # TODO Check if alpha channel and handle correctly
+        # TODO Add more explict handling for RGBA
+        if self.format == ".jpg":
+            image = image.flatten([255, 255, 255], max_alpha=0.0)
 
         if spec.padding:
             image = image.gravity(
