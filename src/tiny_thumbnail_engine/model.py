@@ -97,6 +97,7 @@ class ThumbnailSpec:
     # accurately referred to as "desired width" and "desired height"
     # The final width and height of the image will likely not be the same due to
     # padding, upscale, crop, etc.
+    # TODO Validate width > 0 and height > 0
     width: typing.Optional[int] = attr.field(converter=_convert_int)
     height: typing.Optional[int] = attr.field(converter=_convert_int)
 
