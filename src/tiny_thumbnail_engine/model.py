@@ -11,7 +11,6 @@ import re
 import typing
 from functools import cached_property
 from pathlib import PurePosixPath
-from urllib.parse import urlencode
 
 import attr
 
@@ -176,11 +175,12 @@ class Thumbnail:
 
         thumbnail_path = self._get_thumbnail_path()
 
-        query = self.app._generate_signature(value=str(thumbnail_path))
+        signature = self.app._sign(value=str(thumbnail_path))
 
-        return f"{thumbnail_path}?{urlencode(query)}"
+        # Used urlencode before, but we know signature is already urlsafe
+        return f"{thumbnail_path}?signature={signature}"
 
-    def get_or_generate(self, *, query_params: dict) -> bytes:
+    def get_or_generate(self, *, signature: str) -> bytes:
         thumbnail_path = self._get_thumbnail_path()
 
         data = self.app.storage_backend._read_target(thumbnail_path)
@@ -188,19 +188,10 @@ class Thumbnail:
         if data is not None:
             return data
 
-        # TODO Wrap IndexError and raise a better one
-        signature = query_params.get("signature", [])[0]
-        salt = query_params.get("salt", [])[0]
-        timestamp = query_params.get("timestamp", [])[0]
-
-        # TODO Wrap ValueError
-        timestamp = int(timestamp)
-
+        # raises if invalid
         self.app._unsign(
             value=str(thumbnail_path),
             signature=signature,
-            salt=salt,
-            timestamp=timestamp,
         )
 
         return self._generate(thumbnail_path)

@@ -45,7 +45,6 @@
 import base64
 import hmac
 import secrets
-import time
 import typing
 
 
@@ -61,22 +60,12 @@ DIGEST_MOD: typing.Final[str] = "sha224"
 MAX_AGE: typing.Final[int] = 30 * 24 * 60 * 60
 
 
-class SignatureDict(typing.TypedDict):
-    salt: str
-    signature: str
-    timestamp: int
-
-
 class BadSignatureError(Exception):
     """Signature does not match."""
 
 
-class SignatureExpiredError(BadSignatureError):
-    # If you use an f-string here, flake8 will produce an error
-    """Signature timestamp is too old."""
-
-
-def salted_hmac(secret_key: bytes, salt: bytes, value: bytes) -> bytes:
+def sign(*, secret_key: str, value: str) -> str:
+    """Create a base64 encoded cryptographic signature of 'value'"""
 
     # We want to make sure that the key for HMAC has more than
     # 224 bytes of entropy
@@ -87,49 +76,20 @@ def salted_hmac(secret_key: bytes, salt: bytes, value: bytes) -> bytes:
     if len(secret_key) <= 224:
         raise ValueError("secret_key does not have enough entropy")
 
-    return hmac.digest(key=salt + secret_key, msg=value, digest=DIGEST_MOD)
-
-
-def sign(*, secret_key: str, value: str, timestamp: int, salt: str) -> str:
-    """Create a base64 encoded cryptographic signature of 'value'"""
-    value_with_timestamp = f"{value}:{timestamp}"
-
-    signature = salted_hmac(
-        secret_key.encode(), salt.encode(), value_with_timestamp.encode()
+    signature = hmac.digest(
+        key=secret_key.encode(), msg=value.encode(), digest=DIGEST_MOD
     )
 
     return base64.urlsafe_b64encode(signature).decode().rstrip("=")
-
-
-def generate(*, secret_key: str, value: str) -> SignatureDict:
-    """Shortcut utility to create a signature with sign. Uses current time as timestamp and randomly generates a salt."""
-    timestamp = int(time.time())
-    salt = secrets.token_urlsafe()
-
-    signature = sign(secret_key=secret_key, value=value, timestamp=timestamp, salt=salt)
-
-    return {
-        "salt": salt,
-        "signature": signature,
-        "timestamp": timestamp,
-    }
-
 
 def unsign(
     *,
     secret_key: str,
     value: str,
-    salt: str,
     signature: str,
-    timestamp: typing.Union[str, int],
 ) -> None:
-    if isinstance(timestamp, str):
-        timestamp = int(timestamp)
 
-    if (time.time() - timestamp) > MAX_AGE:
-        raise SignatureExpiredError
-
-    compare = sign(secret_key=secret_key, value=value, timestamp=timestamp, salt=salt)
+    compare = sign(secret_key=secret_key, value=value)
 
     if not secrets.compare_digest(signature, compare):
         raise BadSignatureError
