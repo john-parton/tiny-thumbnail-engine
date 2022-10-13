@@ -32,7 +32,6 @@ class App:
 
     def __attrs_post_init__(self):
         self._sign = partial(signing.sign, secret_key=self.secret_key)
-        self._generate_signature = partial(signing.generate, secret_key=self.secret_key)
         self._unsign = partial(signing.unsign, secret_key=self.secret_key)
 
     @cached_property

@@ -63,24 +63,35 @@ def lambda_handler(
     except app.UrlError:
         return {
             "statusCode": 403,
-            "body": "403 Forbidden",
+            "body": "403 Forbidden: Malformed URL.",
             "isBase64Encoded": False,
             "headers": {
                 "Content-Type": "text/plain",
             },
         }
 
-    query_params = event.get("multiValueQueryStringParameters", {})
+    try:
+        signature = event.get("multiValueQueryStringParameters", {}).get("signature", [])[0]
+    except IndexError:
+        return {
+            "statusCode": 403,
+            "body": "403 Forbidden: Signature is required.",
+            "isBase64Encoded": False,
+            "headers": {
+                "Content-Type": "text/plain",
+            },
+        }
+
 
     # TODO Make sure thumbnail doesn't exceed max size
     try:
-        data = thumbnail.get_or_generate(query_params=query_params)
+        data = thumbnail.get_or_generate(signature=signature)
 
     # TODO More helpful error messages
-    except (BadSignatureError, IndexError, ValueError):
+    except BadSignatureError:
         return {
             "statusCode": 403,
-            "body": "403 Forbidden",
+            "body": "403 Forbidden: Invalid signature.",
             "isBase64Encoded": False,
             "headers": {
                 "Content-Type": "text/plain",
