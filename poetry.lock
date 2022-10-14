@@ -90,14 +90,14 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "boto3"
-version = "1.24.89"
+version = "1.24.90"
 description = "The AWS SDK for Python"
 category = "main"
 optional = true
 python-versions = ">= 3.7"
 
 [package.dependencies]
-botocore = ">=1.27.89,<1.28.0"
+botocore = ">=1.27.90,<1.28.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.6.0,<0.7.0"
 
@@ -1645,8 +1645,8 @@ black = [
     {file = "black-22.10.0.tar.gz", hash = "sha256:f513588da599943e0cde4e32cc9879e825d58720d6557062d1098c5ad80080e1"},
 ]
 boto3 = [
-    {file = "boto3-1.24.89-py3-none-any.whl", hash = "sha256:346f8f0d101a4261dac146a959df18d024feda6431e1d9d84f94efd24d086cae"},
-    {file = "boto3-1.24.89.tar.gz", hash = "sha256:d0d8ffcdc10821c4562bc7f935cdd840033bbc342ac0e14b6bdd348b3adf4c04"},
+    {file = "boto3-1.24.90-py3-none-any.whl", hash = "sha256:2a058a86989d88e27c79dd3e17218b3b167070d8738e20844d49363a3dd64281"},
+    {file = "boto3-1.24.90.tar.gz", hash = "sha256:83c2bc50f762ba87471fc73ec3eefd86626883b38533e98d7993259450c043db"},
 ]
 boto3-stubs = [
     {file = "boto3-stubs-1.24.89.tar.gz", hash = "sha256:d994eebadabde999269c399f7bb07e9d0383b539a9fc60183aa8e2f63af60841"},
