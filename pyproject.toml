@@ -21,12 +21,12 @@ attrs = "^22.1.0"
 # A list of all of the optional dependencies, some of which are included in the
 # below `extras`. They can be opted into by apps.
 pyvips = { version = "^2.2.1", optional = true }
-boto3 = { version = "^1.24.89", optional = true }
+boto3 = { version = "^1.26.32", optional = true }
 
 [tool.poetry.dev-dependencies]
 Pygments = ">=2.10.0"
 black = ">=21.10b0"
-boto3-stubs = "^1.24.89"
+boto3-stubs = "^1.26.32"
 coverage = {extras = ["toml"], version = ">=6.2"}
 darglint = ">=1.8.1"
 flake8 = ">=4.0.1"
