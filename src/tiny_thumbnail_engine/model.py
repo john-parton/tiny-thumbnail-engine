@@ -229,14 +229,8 @@ class Thumbnail:
 
         aspect_ratio = image.width / image.height
 
-        width = (
-            _clamped_int(spec.height * aspect_ratio)
-            if spec.width is None
-            else spec.width
-        )
-        height = (
-            _clamped_int(width / aspect_ratio) if spec.height is None else spec.height
-        )
+        width = spec.width or _clamped_int(spec.height * aspect_ratio)
+        height = spec.height or _clamped_int(width / aspect_ratio)
 
         thumbnail_kwargs = {
             "height": height,
@@ -256,6 +250,7 @@ class Thumbnail:
         if spec.padding:
             image = image.gravity(
                 pyvips.enums.CompassDirection.CENTRE,
+                # I'm not sure these work correctly with `None` height or width
                 max(width, image.width),
                 max(spec.height or image.height, image.height),
                 background=[255, 255, 255],
