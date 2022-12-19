@@ -227,12 +227,19 @@ class Thumbnail:
         # ratio in the next step
         image = image.autorot()
 
-        if spec.width is None:
-            width = _clamped_int(spec.height * (image.width / image.height))
-        else:
-            width = spec.width
+        aspect_ratio = image.width / image.height
+
+        width = (
+            _clamped_int(spec.height * aspect_ratio)
+            if spec.width is None
+            else spec.width
+        )
+        height = (
+            _clamped_int(width / aspect_ratio) if spec.height is None else spec.height
+        )
 
         thumbnail_kwargs = {
+            "height": height,
             "size": pyvips.enums.Size.BOTH if spec.upscale else pyvips.enums.Size.DOWN,
             # There are ENTROPY and ATTENTION
             # options which are probably useful here
@@ -241,9 +248,6 @@ class Thumbnail:
             if spec.crop
             else pyvips.enums.Interesting.NONE,
         }
-
-        if spec.height is not None:
-            thumbnail_kwargs["height"] = spec.height
 
         image = image.thumbnail_image(width, **thumbnail_kwargs)
 
