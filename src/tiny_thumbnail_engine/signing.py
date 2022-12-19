@@ -82,6 +82,7 @@ def sign(*, secret_key: str, value: str) -> str:
 
     return base64.urlsafe_b64encode(signature).decode().rstrip("=")
 
+
 def unsign(
     *,
     secret_key: str,

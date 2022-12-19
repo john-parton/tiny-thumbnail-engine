@@ -279,7 +279,9 @@ class Thumbnail:
         elif self.format == ".webp":
             write_kwargs.update(
                 {
-                    "min_size": True,
+                    # This is supposed to be for animated gifs only
+                    # But I think it might be overriding the Q value
+                    # "min_size": True,
                     "effort": 6,
                 }
             )

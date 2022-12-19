@@ -71,7 +71,9 @@ def lambda_handler(
         }
 
     try:
-        signature = event.get("multiValueQueryStringParameters", {}).get("signature", [])[0]
+        signature = event.get("multiValueQueryStringParameters", {}).get(
+            "signature", []
+        )[0]
     except IndexError:
         return {
             "statusCode": 403,
@@ -81,7 +83,6 @@ def lambda_handler(
                 "Content-Type": "text/plain",
             },
         }
-
 
     # TODO Make sure thumbnail doesn't exceed max size
     try:
