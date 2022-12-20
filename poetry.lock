@@ -18,7 +18,7 @@ python-versions = ">=3.5"
 dev = ["cloudpickle", "coverage[toml] (>=5.0.2)", "furo", "hypothesis", "mypy (>=0.900,!=0.940)", "pre-commit", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "sphinx", "sphinx-notfound-page", "zope.interface"]
 docs = ["furo", "sphinx", "sphinx-notfound-page", "zope.interface"]
 tests = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "zope.interface"]
-tests_no_zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins"]
+tests-no-zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins"]
 
 [[package]]
 name = "Babel"
@@ -519,7 +519,7 @@ optional = false
 python-versions = ">=3.6.0"
 
 [package.extras]
-unicode_backport = ["unicodedata2"]
+unicode-backport = ["unicodedata2"]
 
 [[package]]
 name = "click"
@@ -837,7 +837,7 @@ typing_extensions = {version = ">=3.7.4", markers = "python_version < \"3.8\""}
 
 [package.extras]
 benchmarking = ["psutil", "pytest", "pytest-benchmark (>=3.2,<4.0)"]
-code_style = ["pre-commit (==2.6)"]
+code-style = ["pre-commit (==2.6)"]
 compare = ["commonmark (>=0.9.1,<0.10.0)", "markdown (>=3.3.6,<3.4.0)", "mistletoe (>=0.8.1,<0.9.0)", "mistune (>=2.0.2,<2.1.0)", "panflute (>=2.1.3,<2.2.0)"]
 linkify = ["linkify-it-py (>=1.0,<2.0)"]
 plugins = ["mdit-py-plugins"]
@@ -873,7 +873,7 @@ python-versions = ">=3.7"
 markdown-it-py = ">=1.0.0,<3.0.0"
 
 [package.extras]
-code_style = ["pre-commit"]
+code-style = ["pre-commit"]
 rtd = ["attrs", "myst-parser (>=0.16.1,<0.17.0)", "sphinx-book-theme (>=0.1.0,<0.2.0)"]
 testing = ["coverage", "pytest", "pytest-cov", "pytest-regressions"]
 
@@ -931,7 +931,7 @@ sphinx = ">=4,<6"
 typing-extensions = "*"
 
 [package.extras]
-code_style = ["pre-commit (>=2.12,<3.0)"]
+code-style = ["pre-commit (>=2.12,<3.0)"]
 linkify = ["linkify-it-py (>=1.0,<2.0)"]
 rtd = ["ipython", "sphinx-book-theme", "sphinx-design", "sphinxcontrib.mermaid (>=0.7.1,<0.8.0)", "sphinxext-opengraph (>=0.6.3,<0.7.0)", "sphinxext-rediraffe (>=0.2.7,<0.3.0)"]
 testing = ["beautifulsoup4", "coverage[toml]", "pytest (>=6,<7)", "pytest-cov", "pytest-param-files (>=0.3.4,<0.4.0)", "pytest-regressions", "sphinx (<5.2)", "sphinx-pytest"]
@@ -976,14 +976,14 @@ python-versions = ">=2.6"
 
 [[package]]
 name = "pep8-naming"
-version = "0.13.2"
+version = "0.13.3"
 description = "Check PEP-8 naming conventions, plugin for flake8"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 
 [package.dependencies]
-flake8 = ">=3.9.1"
+flake8 = ">=5.0.0"
 
 [[package]]
 name = "pkgconfig"
@@ -1200,7 +1200,7 @@ urllib3 = ">=1.21.1,<1.27"
 
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
-use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
+use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "restructuredtext-lint"
@@ -2023,8 +2023,8 @@ pbr = [
     {file = "pbr-5.11.0.tar.gz", hash = "sha256:b97bc6695b2aff02144133c2e7399d5885223d42b7912ffaec2ca3898e673bfe"},
 ]
 pep8-naming = [
-    {file = "pep8-naming-0.13.2.tar.gz", hash = "sha256:93eef62f525fd12a6f8c98f4dcc17fa70baae2f37fa1f73bec00e3e44392fa48"},
-    {file = "pep8_naming-0.13.2-py3-none-any.whl", hash = "sha256:59e29e55c478db69cffbe14ab24b5bd2cd615c0413edf790d47d3fb7ba9a4e23"},
+    {file = "pep8-naming-0.13.3.tar.gz", hash = "sha256:1705f046dfcd851378aac3be1cd1551c7c1e5ff363bacad707d43007877fa971"},
+    {file = "pep8_naming-0.13.3-py3-none-any.whl", hash = "sha256:1a86b8c71a03337c97181917e2b472f0f5e4ccb06844a0d6f0a33522549e7a80"},
 ]
 pkgconfig = [
     {file = "pkgconfig-1.5.5-py3-none-any.whl", hash = "sha256:d20023bbeb42ee6d428a0fac6e0904631f545985a10cdd71a20aa58bc47a4209"},
