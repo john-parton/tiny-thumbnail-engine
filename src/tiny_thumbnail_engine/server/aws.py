@@ -7,6 +7,7 @@ import typing
 
 from tiny_thumbnail_engine import App
 from tiny_thumbnail_engine.signing import BadSignatureError
+from tiny_thumbnail_engine.exceptions import UrlError
 
 
 app = App()
@@ -26,15 +27,38 @@ except KeyError as e:
     ) from e
 
 
-# TODO Consider a class-based approach
-def lambda_handler(
-    event: dict[typing.Any, typing.Any], context
-) -> dict[typing.Any, typing.Any]:
+class LambdaHttpRequest(typing.TypedDict, total=False):
+    httpMethod: str
+    path: str
+    multiValueQueryStringParameters: dict[str, list[str]]
+    multiValueHeaders: dict[str, list[str]]
+    body: str
+    isBase64Encoded: bool
+
+# I think this could be a set and we could just do set
+# arithmetic
+_HTTP_REQUEST_KEYS: typing.Final[list[str]] = [
+    "httpMethod", "path", "multiValueQueryStringParameters", "multiValueHeaders", "body", "isBase64Encoded",
+]
+
+
+def _http_request_handler(event: LambdaHttpRequest, context):
+
+    if event.get("httpMethod", "") != "GET":
+        return {
+            "statusCode": 405,
+            "body": "405 Method Not Allowed",
+            "isBase64Encoded": False,
+            "headers": {
+                "Content-Type": "text/plain",
+            },
+        }
+
     """Called by lambda to run application."""
     # TODO Consider factoring out into its own method
     if CLOUDFRONT_VERIFY:
         try:
-            verification_header = event.get("multiValueHeaders", {}).get(
+            verification_header: str = event.get("multiValueHeaders", {}).get(
                 "x-cloudfront-verify", []
             )[0]
         except IndexError:
@@ -58,9 +82,9 @@ def lambda_handler(
 
     # Verify that it's not a malformed request
     try:
-        thumbnail = app.from_path(path)
+        thumbnail = app.get_thumbnail(path)
     # A garbage URL was passed
-    except app.UrlError:
+    except UrlError:
         return {
             "statusCode": 403,
             "body": "403 Forbidden: Malformed URL.",
@@ -107,3 +131,13 @@ def lambda_handler(
             "Content-Type": thumbnail.content_type,
         },
     }
+
+# TODO Consider a class-based approach
+def lambda_handler(
+    event: dict[typing.Any, typing.Any], context
+) -> dict[typing.Any, typing.Any]:
+    """Called by lambda to run application."""
+
+    # I believe this could be done with a set operation
+    if all(key in event for key in _HTTP_REQUEST_KEYS):
+        return _http_request_handler(event, context)

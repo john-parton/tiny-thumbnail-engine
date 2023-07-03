@@ -7,18 +7,20 @@ Not responsible for fetching/upload data to filesystem(s) or s3
 Not responsible directly for generating or validating signatures or auth tokens
 """
 
+import dataclasses
 import re
 import typing
+import posixpath
 from functools import cached_property
 from pathlib import PurePosixPath
-
-import attr
 
 
 try:
     import pyvips
 except ImportError:
     pyvips = None
+
+from .exceptions import UrlError
 
 # Avoid circular dependency unless type checkgin
 if typing.TYPE_CHECKING:
@@ -40,7 +42,17 @@ def _clamped_int(value: int) -> int:
     return max(int(round(value)), 1)
 
 
-@attr.s
+class ThumbnailSpecMatch(typing.TypedDict):
+    width: str
+    height: typing.Optional[str]
+    padding: typing.Literal["p", ""]
+    upscale: typing.Literal["u", ""]
+    crop: typing.Literal["c", ""]
+
+ThumbnailFormat: typing.TypeAlias = typing.Literal[".webp", ".jpg"]
+
+
+@dataclasses.dataclass
 class ThumbnailSpec:
     """A string representation of the desired thumbnail operations including
 
@@ -79,7 +91,7 @@ class ThumbnailSpec:
 
     # I'm not sure if some combinations of padding/upscale/crop are nonsense?
     # Probably some duplication in here
-    SPEC_PATTERN = re.compile(
+    SPEC_PATTERN: typing.ClassVar[typing.Pattern[str]] = re.compile(
         r"""
         ^
             (?P<width>\d*)
@@ -97,12 +109,14 @@ class ThumbnailSpec:
     # The final width and height of the image will likely not be the same due to
     # padding, upscale, crop, etc.
     # TODO Validate width > 0 and height > 0
-    width: typing.Optional[int] = attr.field(converter=_convert_int)
-    height: typing.Optional[int] = attr.field(converter=_convert_int)
+    width: typing.Optional[int]
+    height: typing.Optional[int]
 
-    padding: bool = attr.field(kw_only=True, default=False, converter=bool)
-    upscale: bool = attr.field(kw_only=True, default=False, converter=bool)
-    crop: bool = attr.field(kw_only=True, default=False, converter=bool)
+    _: dataclasses.KW_ONLY
+
+    padding: bool
+    upscale: bool
+    crop: bool
 
     @classmethod
     def from_string(cls, spec: str) -> "ThumbnailSpec":
@@ -110,8 +124,16 @@ class ThumbnailSpec:
 
         if match is None:
             raise ValueError(f"Invalid spec: {spec!r}")
+        
+        d: ThumbnailSpecMatch = match.groupdict()
 
-        return cls(**match.groupdict())
+        return cls(
+            width=_convert_int(d["width"]),
+            height=_convert_int(d["height"]),
+            padding=bool(d["padding"]),
+            upscale=bool(d["upscale"]),
+            crop=bool(d["crop"]),
+        )
 
     def to_string(self) -> str:
         spec = ""
@@ -145,22 +167,18 @@ class ThumbnailSpec:
         return spec
 
 
-@attr.s
+@dataclasses.dataclass
 class Thumbnail:
 
-    path: str = attr.field()
-    spec: ThumbnailSpec = attr.field()
-    format: str = attr.field(kw_only=True)  # TODO make this an enum
+    path: str
+    spec: ThumbnailSpec
+    format: ThumbnailFormat
+
+    _: dataclasses.KW_ONLY
 
     # Reference to the app so that we can
-    # retrieve fiels and persist the final image
-    # Missing type annotation
-    app: "App" = attr.field(kw_only=True)
-
-    @format.validator
-    def check_format(self, attribute, value: typing.Any) -> None:
-        if value not in {".webp", ".jpg"}:
-            raise ValueError
+    # retrieve files and persist the final image
+    app: "App"
 
     def _get_thumbnail_path(self) -> PurePosixPath:
         """Relative path to the final thumbnail"""
@@ -213,7 +231,7 @@ class Thumbnail:
         if pyvips is None:
             raise ServerMissingDependancyError
 
-        spec = self.spec
+        spec: ThumbnailSpec = self.spec
 
         # Can create an error
         # Read data using storage backend
@@ -229,8 +247,8 @@ class Thumbnail:
 
         aspect_ratio = image.width / image.height
 
-        width = spec.width or _clamped_int(spec.height * aspect_ratio)
-        height = spec.height or _clamped_int(width / aspect_ratio)
+        width: int = spec.width or _clamped_int(spec.height * aspect_ratio)
+        height: int = spec.height or _clamped_int(width / aspect_ratio)
 
         thumbnail_kwargs = {
             "height": height,
@@ -253,10 +271,12 @@ class Thumbnail:
                 # I'm not sure these work correctly with `None` height or width
                 max(width, image.width),
                 max(spec.height or image.height, image.height),
+                # If RGBA, can padding be transparent?
                 background=[255, 255, 255],
             )
 
         write_kwargs = {
+            # TODO make quality configurable
             "Q": 80,
             "strip": True,
         }
@@ -276,12 +296,13 @@ class Thumbnail:
                 }
             )
         elif self.format == ".webp":
-            write_kwargs.update(
-                {
-                    "min_size": True,
-                    "effort": 6,
-                }
-            )
+            pass
+            # write_kwargs.update(
+            #     {
+            #         "min_size": True,
+            #         "effort": 6,
+            #     }
+            # )
         else:
             raise ValueError(f"Unhandled format format: {self.format!r}")
 
@@ -293,3 +314,34 @@ class Thumbnail:
         )
 
         return finished_image
+
+    @classmethod
+    def from_path(cls, path: str, *, app: "App") -> "Thumbnail":
+        # Example
+        # "/path/to/filename.jpg/200x120ucp20/filename.webp"
+
+        try:
+            *path_parts, spec, desired_filename = posixpath.split(path)
+        except ValueError as e:
+            raise UrlError from e
+
+        try:
+            spec: ThumbnailSpec = ThumbnailSpec.from_string(spec)
+        except ValueError as e:
+            raise UrlError from e
+
+        # Could use splitext here
+        # I do like pathlib, but it's kind of hard to read
+        file_system_path = posixpath.join(*path_parts)
+        __, output_format = posixpath.splitext(desired_filename)
+
+        if output_format not in {".jpg", ".webp"}:
+            raise UrlError
+
+        # This should probably be a method on the thumbnail
+        return Thumbnail(
+            file_system_path,
+            app=app,
+            format=output_format,
+            spec=spec,
+        )
