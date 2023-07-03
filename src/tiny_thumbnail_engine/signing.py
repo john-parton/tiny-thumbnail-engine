@@ -82,13 +82,13 @@ def sign(*, secret_key: str, value: str) -> str:
 
     return base64.urlsafe_b64encode(signature).decode().rstrip("=")
 
+
 def unsign(
     *,
     secret_key: str,
     value: str,
     signature: str,
 ) -> None:
-
     compare = sign(secret_key=secret_key, value=value)
 
     if not secrets.compare_digest(signature, compare):

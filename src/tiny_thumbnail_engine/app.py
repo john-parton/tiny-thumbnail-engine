@@ -13,7 +13,6 @@ from tiny_thumbnail_engine.model import Thumbnail
 from tiny_thumbnail_engine.storage.protocol import StorageProtocol
 
 
-
 def get_storage_backend() -> StorageProtocol:
     # Default to the S3 backend
     backend_string: str = os.environ.get(
@@ -39,7 +38,6 @@ def get_storage_backend() -> StorageProtocol:
 # Some of these are needed for the client and some for the server
 @dataclasses.dataclass
 class App:
-
     secret_key: str = dataclasses.field(
         factory=EnvironFactory("SECRET_KEY", "tiny_thumbnail_engine.App")
     )

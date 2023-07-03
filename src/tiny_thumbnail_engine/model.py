@@ -29,7 +29,8 @@ if typing.TYPE_CHECKING:
 
 # TODO Move to exceptions
 class ServerMissingDependancyError(RuntimeError):
-    """Missing dependancy for server-side functionality. Did you install tiny-thumbnail-engine[server]"""
+    """Missing dependancy for server-side functionality.
+    Did you install tiny-thumbnail-engine[server]"""
 
 
 def _convert_int(value: typing.Any) -> typing.Optional[int]:
@@ -48,6 +49,7 @@ class ThumbnailSpecMatch(typing.TypedDict):
     padding: typing.Literal["p", ""]
     upscale: typing.Literal["u", ""]
     crop: typing.Literal["c", ""]
+
 
 ThumbnailFormat: typing.TypeAlias = typing.Literal[".webp", ".jpg"]
 
@@ -124,7 +126,7 @@ class ThumbnailSpec:
 
         if match is None:
             raise ValueError(f"Invalid spec: {spec!r}")
-        
+
         d: ThumbnailSpecMatch = match.groupdict()
 
         return cls(
@@ -169,7 +171,6 @@ class ThumbnailSpec:
 
 @dataclasses.dataclass
 class Thumbnail:
-
     path: str
     spec: ThumbnailSpec
     format: ThumbnailFormat
@@ -190,7 +191,6 @@ class Thumbnail:
     # Should this just be __str__ ?
     @cached_property
     def url(self) -> str:
-
         thumbnail_path = self._get_thumbnail_path()
 
         signature = self.app._sign(value=str(thumbnail_path))

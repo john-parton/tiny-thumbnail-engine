@@ -35,15 +35,20 @@ class LambdaHttpRequest(typing.TypedDict, total=False):
     body: str
     isBase64Encoded: bool
 
+
 # I think this could be a set and we could just do set
 # arithmetic
 _HTTP_REQUEST_KEYS: typing.Final[list[str]] = [
-    "httpMethod", "path", "multiValueQueryStringParameters", "multiValueHeaders", "body", "isBase64Encoded",
+    "httpMethod",
+    "path",
+    "multiValueQueryStringParameters",
+    "multiValueHeaders",
+    "body",
+    "isBase64Encoded",
 ]
 
 
 def _http_request_handler(event: LambdaHttpRequest, context):
-
     if event.get("httpMethod", "") != "GET":
         return {
             "statusCode": 405,
@@ -95,7 +100,9 @@ def _http_request_handler(event: LambdaHttpRequest, context):
         }
 
     try:
-        signature = event.get("multiValueQueryStringParameters", {}).get("signature", [])[0]
+        signature = event.get("multiValueQueryStringParameters", {}).get(
+            "signature", []
+        )[0]
     except IndexError:
         return {
             "statusCode": 403,
@@ -105,7 +112,6 @@ def _http_request_handler(event: LambdaHttpRequest, context):
                 "Content-Type": "text/plain",
             },
         }
-
 
     # TODO Make sure thumbnail doesn't exceed max size
     try:
@@ -131,6 +137,7 @@ def _http_request_handler(event: LambdaHttpRequest, context):
             "Content-Type": thumbnail.content_type,
         },
     }
+
 
 # TODO Consider a class-based approach
 def lambda_handler(

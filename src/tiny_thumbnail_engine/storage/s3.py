@@ -20,7 +20,6 @@ DEFAULT_TIME_TO_LIVE: typing.Final[int] = (
 )  # 180 days, kind of bonkers. That's what Google says
 
 
-
 @dataclasses.dataclass
 class S3Backend:
     source_bucket: str = dataclasses.field(
@@ -66,11 +65,11 @@ class S3Backend:
         key = path.as_posix()
         f = io.BytesIO(contents)
         self.client.upload_fileobj(
-            f, 
+            f,
             self.target_bucket,
-            key, 
+            key,
             ExtraArgs={
                 "ContentType": content_type,
-                "CacheControl": f"public, max-age={DEFAULT_TIME_TO_LIVE}"
-            }
+                "CacheControl": f"public, max-age={DEFAULT_TIME_TO_LIVE}",
+            },
         )
